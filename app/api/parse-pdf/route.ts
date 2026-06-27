@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase";
+import { serviceSupabase, createUserClient, } from "@/lib/supabase";
 import pdf from "pdf-parse";
 
 export async function POST(req: NextRequest) {
@@ -15,12 +15,12 @@ export async function POST(req: NextRequest) {
 
   const token = authHeader.replace("Bearer ", "");
 
-  const supabase = createServerClient();
+  const supabase = createUserClient(token);
 
   const {
     data: { user },
     error,
-  } = await supabase.auth.getUser(token);
+  } = await supabase.auth.getUser();
 
   if (error || !user) {
     return NextResponse.json(
@@ -202,11 +202,8 @@ export async function POST(req: NextRequest) {
       throw new Error("No questions extracted");
     }
 
-    // Save to Supabase
-    const supabase = createServerClient();
-
     // Create exam record
-    const { data: exam, error: examError } = await supabase
+    const { data: exam, error: examError } = await serviceSupabase
       .from("exams")
       .insert({
         name: examName,
@@ -228,7 +225,7 @@ export async function POST(req: NextRequest) {
         correct_answer: q.correct_answer,
       }));
 
-      const { error: qError } = await supabase.from("questions").insert(batch);
+      const { error: qError } = await serviceSupabase.from("questions").insert(batch);
       if (qError) throw new Error(`Failed to save questions: ${qError.message}`);
     }
 

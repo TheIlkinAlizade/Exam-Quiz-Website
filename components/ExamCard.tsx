@@ -31,29 +31,37 @@ export default function ExamCard({ exam, index, onDeleted }: Props) {
 
     setDeleting(true);
 
-    const q = await supabase
-      .from("questions")
-      .delete()
-      .eq("exam_id", exam.id);
+    try {
+      const session = await supabase.auth.getSession();
 
-    console.log("Questions delete:", q);
+      if (!session.data.session) {
+        throw new Error("Not logged in");
+      }
 
-    const e = await supabase
-      .from("exams")
-      .delete()
-      .eq("id", exam.id);
+      const res = await fetch("/api/delete-exam", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.data.session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          examId: exam.id,
+        }),
+      });
 
-    console.log("Exam delete:", e);
+      const json = await res.json();
 
-    if (q.error || e.error) {
-      alert(q.error?.message || e.error?.message);
+      if (!res.ok) {
+        throw new Error(json.error || "Failed to delete exam");
+      }
+
+      onDeleted();
+    } catch (err: any) {
+      alert(err.message);
       setDeleting(false);
-      return;
     }
-
-    onDeleted();
   }
-  
+
   const canTake30 = exam.question_count >= 30;
   const canTake50 = exam.question_count >= 50;
 

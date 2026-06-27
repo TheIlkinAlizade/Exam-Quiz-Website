@@ -1,8 +1,10 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/api/delete-exam/route": "app/api/delete-exam/route.js",
+  "/api/parse-pdf/route": "app/api/parse-pdf/route.js",
+  "/exam/[id]/page": "app/exam/[id]/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/exam/[id]/page": "app/exam/[id]/page.js",
   "/results/page": "app/results/page.js"
 }

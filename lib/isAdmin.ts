@@ -1,13 +1,13 @@
-import { createServerClient } from "./supabase";
+import { serviceSupabase } from "./supabase";
 
 export async function isAdmin(userId: string) {
-  const supabase = createServerClient();
-
-  const { data } = await supabase
+  const { data, error } = await serviceSupabase
     .from("profiles")
     .select("role")
     .eq("id", userId)
     .single();
+
+  if (error) return false;
 
   return data?.role === "admin";
 }
